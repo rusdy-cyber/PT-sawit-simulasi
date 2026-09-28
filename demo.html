@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PT-Indah-lestari - Demo Dashboard & Filament Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#090a0f',
+                        panelbg: '#12141c',
+                        cardbg: '#1a1d27',
+                        borderbg: '#2a2e3d',
+                        brandYellow: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #090a0f;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+    </style>
+</head>
+
+<body x-data="{ 
+    mode: 'mobile', 
+    activeTab: 'list', 
+    selectedData: null,
+    ownerTab: 'dashboard',
+    profileMenuOpen: false,
+    showOwnerDetailModal: false,
+    selectedOwnerData: null,
+    formData: {
+        kategori: 'Truk Engkel',
+        plat: '',
+        beratKosong: 0,
+        beratIsi: 0,
+        hargaPerKg: 0,
+        foto: null
+    },
+    get muatanSawit() {
+        return Math.max(0, (Number(this.formData.beratIsi) || 0) - (Number(this.formData.beratKosong) || 0));
+    },
+    get totalHarga() {
+        return this.muatanSawit * (Number(this.formData.hargaPerKg) || 0);
+    },
+    handleLogout() {
+        alert('Anda berhasil logout!');
+        this.profileMenuOpen = false;
+    },
+    openOwnerDetail(data) {
+        this.selectedOwnerData = data;
+        this.showOwnerDetailModal = true;
+    }
+}" class="min-h-screen antialiased flex flex-col items-center justify-start p-2 sm:p-6">
+
+    <!-- MODE SWITCHER TOP BAR -->
+    <div
+        class="w-full max-w-5xl bg-[#181b26] p-2 rounded-2xl border border-gray-800 flex items-center justify-between mb-6 shadow-xl">
+        <div class="flex items-center gap-2 pl-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs font-bold text-gray-300">PT-Indah-lestari Demo Preview</span>
+        </div>
+        <div class="flex bg-[#0d0e14] p-1 rounded-xl border border-gray-800">
+            <button @click="mode = 'mobile'"
+                :class="mode === 'mobile' ? 'bg-amber-500 text-black font-bold' : 'text-gray-400 hover:text-white'"
+                class="px-3.5 py-1.5 rounded-lg text-xs transition-all">
+                📱 Tampilan owner
+            </button>
+            <button @click="mode = 'desktop'"
+                :class="mode === 'desktop' ? 'bg-amber-500 text-black font-bold' : 'text-gray-400 hover:text-white'"
+                class="px-3.5 py-1.5 rounded-lg text-xs transition-all">
+                💻 tampilan admin
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODE 1: MOBILE OWNER VIEW                  -->
+    <!-- ========================================== -->
+    <div x-show="mode === 'mobile'"
+        class="w-full max-w-[390px] bg-black rounded-[40px] border-[8px] border-gray-800 p-4 shadow-2xl relative min-h-[780px] flex flex-col justify-between overflow-hidden">
+
+        <div>
+            <!-- Header Mobile dengan Dropdown Profil -->
+            <div class="flex justify-between items-center pt-2 pb-4 border-b border-gray-800/60 relative">
+                <button class="text-gray-400 p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <!-- Profil Button Mobile -->
+                <div class="relative">
+                    <button @click="profileMenuOpen = !profileMenuOpen"
+                        class="w-8 h-8 rounded-full bg-black border border-gray-700 hover:border-amber-500 transition flex items-center justify-center font-bold text-xs text-white">
+                        OP
+                    </button>
+
+                    <!-- Dropdown Menu Mobile -->
+                    <div x-show="profileMenuOpen" @click.outside="profileMenuOpen = false" x-transition
+                        class="absolute right-0 mt-2 w-44 bg-[#12141c] border border-gray-800 rounded-xl shadow-2xl py-1 z-50">
+                        <div class="px-3 py-2 border-b border-gray-800">
+                            <p class="text-xs font-bold text-white">Owner PT</p>
+                            <p class="text-[10px] text-gray-400">owner@indah-lestari.com</p>
+                        </div>
+
+                        <!-- Diubah ke tag <a> mengarah ke login.html -->
+                        <a href="login.html"
+                            class="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-gray-800 flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                </path>
+                            </svg>
+                            <span>Sign Out / Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Menu Owner -->
+            <div class="flex bg-[#12141c] p-1 rounded-xl border border-gray-800 mt-3 text-xs">
+                <button @click="ownerTab = 'dashboard'"
+                    :class="ownerTab === 'dashboard' ? 'bg-amber-500 text-black font-bold' : 'text-gray-400'"
+                    class="flex-1 py-1.5 rounded-lg text-center transition">
+                    Dashboard
+                </button>
+                <button @click="ownerTab = 'laporan'"
+                    :class="ownerTab === 'laporan' ? 'bg-amber-500 text-black font-bold' : 'text-gray-400'"
+                    class="flex-1 py-1.5 rounded-lg text-center transition">
+                    Laporan Timbangan
+                </button>
+            </div>
+
+            <!-- TAB 1: OWNER DASHBOARD -->
+            <div x-show="ownerTab === 'dashboard'" class="mt-4 space-y-4">
+                <div class="bg-[#12141c] p-4 rounded-2xl border border-gray-800">
+                    <p class="text-xs text-gray-400">Selamat datang,</p>
+                    <h2 class="text-xl font-extrabold text-white flex items-center gap-2 mt-0.5">Owner PT 👋</h2>
+                    <p class="text-[11px] text-gray-400 mt-1 leading-snug">Kelola dan pantau seluruh laporan timbangan
+                        dengan mudah dan cepat.</p>
+                </div>
+
+                <div class="flex gap-2">
+                    <button
+                        class="px-4 py-1.5 rounded-full bg-amber-500 text-black text-xs font-bold shadow-md shadow-amber-500/10">Bulan
+                        Ini</button>
+                    <button
+                        class="px-4 py-1.5 rounded-full bg-[#161922] text-gray-400 border border-gray-800 text-xs font-medium">Tahun
+                        Ini</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="bg-[#12141c] p-3 rounded-xl border border-gray-800 text-center">
+                        <p class="text-[10px] text-gray-400">Timbang Hari Ini</p>
+                        <p class="text-sm font-bold text-white mt-1">1 <span
+                                class="text-xs text-gray-400 font-normal">Tx</span></p>
+                    </div>
+                    <div class="bg-[#12141c] p-3 rounded-xl border border-gray-800 text-center">
+                        <p class="text-[10px] text-gray-400">Timbang Bulan Ini</p>
+                        <p class="text-sm font-bold text-white mt-1">2 <span
+                                class="text-xs text-gray-400 font-normal">Tx</span></p>
+                    </div>
+                    <div class="bg-[#12141c] p-3 rounded-xl border border-gray-800 text-center">
+                        <p class="text-[10px] text-gray-400">Muatan Sawit</p>
+                        <p class="text-sm font-bold text-white mt-1">1,4 Jt <span
+                                class="text-xs text-gray-400 font-normal">kg</span></p>
+                    </div>
+                    <div class="bg-[#12141c] p-3 rounded-xl border border-gray-800 text-center">
+                        <p class="text-[10px] text-gray-400">Pendapatan</p>
+                        <p class="text-sm font-bold text-amber-500 mt-1">Rp2,6 M</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#12141c] p-4 rounded-2xl border border-gray-800">
+                    <h4 class="text-xs font-bold text-white mb-3">Tren Pendapatan — Harian Bulan Ini</h4>
+                    <div class="h-36">
+                        <canvas id="mobileChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: OWNER LAPORAN -->
+            <div x-show="ownerTab === 'laporan'" class="mt-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-white">Laporan Timbangan</h3>
+                    <span
+                        class="text-[10px] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Klik
+                        item untuk detail</span>
+                </div>
+
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Search..."
+                        class="w-full bg-[#12141c] border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white">
+                    <select class="bg-[#12141c] border border-gray-800 rounded-xl px-2 py-1.5 text-xs text-gray-400">
+                        <option>Sort</option>
+                    </select>
+                </div>
+
+                <!-- Kartu Laporan 1 (Bisa Diklik untuk Modal Detail) -->
+                <div @click="openOwnerDetail({
+                    plat: '11313113131',
+                    kategori: 'Truk Engkel',
+                    muatan: '1,299,200 kg',
+                    total: 'Rp 2,6 M',
+                    tanggal: '27 Sep 2026, 00:34',
+                    pencatat: 'Admin Timbangan',
+                    beratK: '12,113 kg',
+                    beratI: '1,311,313 kg',
+                    foto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'
+                })"
+                    class="bg-[#12141c] hover:bg-[#181b26] border border-gray-800 rounded-2xl p-3 space-y-2 cursor-pointer transition active:scale-[0.98]">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-white text-xs">Plat Nomor: 11313113131</span>
+                        <span class="text-[10px] text-amber-500">Lihat Detail &rarr;</span>
+                    </div>
+                    <div class="flex gap-3 items-center">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
+                            class="w-12 h-12 rounded-lg object-cover">
+                        <div class="text-[11px] space-y-0.5">
+                            <span
+                                class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[9px] px-1.5 py-0.2 rounded">Truk
+                                Engkel</span>
+                            <p class="text-emerald-400 font-bold mt-1">1,299,200 kg &nbsp;|&nbsp; Rp 2,6 M</p>
+                            <p class="text-gray-400 text-[10px]">27 Sep 2026, 00:34</p>
+                            <p class="text-gray-500 text-[10px]">Admin Timbangan</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kartu Laporan 2 (Bisa Diklik untuk Modal Detail) -->
+                <div @click="openOwnerDetail({
+                    plat: '23425',
+                    kategori: 'Truk Engkel',
+                    muatan: '122,000 kg',
+                    total: 'Rp 0',
+                    tanggal: '22 Sep 2026, 03:10',
+                    pencatat: 'Admin Timbangan',
+                    beratK: '10,000 kg',
+                    beratI: '132,000 kg',
+                    foto: null
+                })"
+                    class="bg-[#12141c] hover:bg-[#181b26] border border-gray-800 rounded-2xl p-3 space-y-2 cursor-pointer transition active:scale-[0.98]">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-white text-xs">Plat Nomor: 23425</span>
+                        <span class="text-[10px] text-amber-500">Lihat Detail &rarr;</span>
+                    </div>
+                    <div class="flex gap-3 items-center">
+                        <div
+                            class="w-12 h-12 rounded-lg bg-red-900/40 border border-red-700/50 flex items-center justify-center text-red-400 text-[9px] font-bold">
+                            FOTO</div>
+                        <div class="text-[11px] space-y-0.5">
+                            <span
+                                class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[9px] px-1.5 py-0.2 rounded">Truk
+                                Engkel</span>
+                            <p class="text-emerald-400 font-bold mt-1">122,000 kg &nbsp;|&nbsp; Rp 0</p>
+                            <p class="text-gray-400 text-[10px]">22 Sep 2026, 03:10</p>
+                            <p class="text-gray-500 text-[10px]">Admin Timbangan</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- MODAL DETAIL LAPORAN KHUSUS MOBILE OWNER -->
+        <div x-show="showOwnerDetailModal" x-transition
+            class="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 p-4 flex flex-col justify-end">
+            <div @click.outside="showOwnerDetailModal = false"
+                class="bg-[#12141c] border border-gray-800 rounded-3xl p-4 max-h-[90%] overflow-y-auto space-y-4 shadow-2xl">
+
+                <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                    <h3 class="text-sm font-bold text-white">Detail Laporan Timbangan</h3>
+                    <button @click="showOwnerDetailModal = false"
+                        class="text-gray-400 hover:text-white bg-gray-800 rounded-full w-6 h-6 flex items-center justify-center text-xs">✕</button>
+                </div>
+
+                <template x-if="selectedOwnerData">
+                    <div class="space-y-3">
+                        <!-- Foto Mobil -->
+                        <div
+                            class="w-full h-36 bg-[#0d0e14] rounded-xl overflow-hidden border border-gray-800 flex items-center justify-center">
+                            <template x-if="selectedOwnerData.foto">
+                                <img :src="selectedOwnerData.foto" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!selectedOwnerData.foto">
+                                <span class="text-xs text-red-400 font-bold">Foto Tidak Tersedia</span>
+                            </template>
+                        </div>
+
+                        <!-- Info Plat & Kategori -->
+                        <div
+                            class="bg-[#0d0e14] p-3 rounded-xl border border-gray-800 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] text-gray-400">Plat Nomor</p>
+                                <p class="text-sm font-extrabold text-white" x-text="selectedOwnerData.plat"></p>
+                            </div>
+                            <span
+                                class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-md"
+                                x-text="selectedOwnerData.kategori"></span>
+                        </div>
+
+                        <!-- Detail Hasil Timbangan -->
+                        <div class="bg-[#0d0e14] p-3 rounded-xl border border-gray-800 space-y-2">
+                            <p class="text-[11px] font-bold text-gray-300 border-b border-gray-800/80 pb-1">⚖️ Rincian
+                                Timbangan</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                    <p class="text-[10px] text-gray-400">Berat Kosong</p>
+                                    <p class="font-semibold text-white" x-text="selectedOwnerData.beratK"></p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-gray-400">Berat Isi</p>
+                                    <p class="font-semibold text-white" x-text="selectedOwnerData.beratI"></p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-gray-400">Muatan Sawit (Netto)</p>
+                                    <p class="font-bold text-emerald-400" x-text="selectedOwnerData.muatan"></p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-gray-400">Total Harga</p>
+                                    <p class="font-bold text-amber-500" x-text="selectedOwnerData.total"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Petugas & Waktu -->
+                        <div class="bg-[#0d0e14] p-3 rounded-xl border border-gray-800 space-y-1.5 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Tanggal & Waktu:</span>
+                                <span class="text-white font-medium" x-text="selectedOwnerData.tanggal"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Pencatat:</span>
+                                <span class="text-gray-300" x-text="selectedOwnerData.pencatat"></span>
+                            </div>
+                        </div>
+
+                        <button @click="showOwnerDetailModal = false"
+                            class="w-full bg-amber-500 text-black font-bold text-xs py-2 rounded-xl">Tutup
+                            Detail</button>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <div class="text-center pt-4 pb-1">
+            <p class="text-[10px] text-gray-600">Simulasi Tampilan Mobile Owner</p>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODE 2: DESKTOP FILAMENT VIEW              -->
+    <!-- ========================================== -->
+    <div x-show="mode === 'desktop'"
+        class="w-full max-w-6xl bg-[#0d0e14] rounded-2xl border border-gray-800 shadow-2xl flex min-h-[680px] overflow-hidden">
+
+        <!-- SIDEBAR FILAMENT -->
+        <aside class="w-56 bg-[#12141c] border-r border-gray-800/80 p-4 flex flex-col justify-between">
+            <div>
+                <h1 class="text-sm font-extrabold text-white tracking-wide mb-6">PT-Indah-lestari</h1>
+
+                <nav class="space-y-1">
+                    <button @click="activeTab = 'dashboard'"
+                        :class="activeTab === 'dashboard' ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-gray-400 hover:bg-gray-800/50'"
+                        class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                            </path>
+                        </svg>
+                        <span>Dashboard</span>
+                    </button>
+                    <button @click="activeTab = 'list'"
+                        :class="activeTab === 'list' || activeTab === 'create' ? 'bg-amber-500/10 text-amber-400 font-semibold' : 'text-gray-400 hover:bg-gray-800/50'"
+                        class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 6l3 18h12l3-18H3z"></path>
+                        </svg>
+                        <span>Data Timbangan</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="text-[10px] text-gray-600">Filament v3.x Dark UI</div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 p-6 overflow-y-auto">
+
+            <!-- TOP NAVBAR dengan Dropdown Profil Admin -->
+            <div class="flex justify-between items-center mb-6 pb-3 border-b border-gray-800/60">
+                <div class="text-xs text-gray-400">
+                    Laporan Timbangans &gt; <span class="text-white font-medium capitalize" x-text="activeTab"></span>
+                </div>
+
+                <!-- Profil Button Desktop -->
+                <div class="relative">
+                    <button @click="profileMenuOpen = !profileMenuOpen"
+                        class="w-7 h-7 rounded-full bg-black border border-gray-700 hover:border-amber-500 transition flex items-center justify-center text-xs font-bold text-white">
+                        AT
+                    </button>
+
+                    <!-- Dropdown Menu Mobile -->
+                    <div x-show="profileMenuOpen" @click.outside="profileMenuOpen = false" x-transition
+                        class="absolute right-0 mt-2 w-44 bg-[#12141c] border border-gray-800 rounded-xl shadow-2xl py-1 z-50">
+                        <div class="px-3 py-2 border-b border-gray-800">
+                            <p class="text-xs font-bold text-white">Owner PT</p>
+                            <p class="text-[10px] text-gray-400">owner@indah-lestari.com</p>
+                        </div>
+
+                        <!-- Diubah ke tag <a> mengarah ke login.html -->
+                        <a href="login.html"
+                            class="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-gray-800 flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                </path>
+                            </svg>
+                            <span>Sign Out / Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENT 1: GRID LAPORAN TIMBANGAN -->
+            <div x-show="activeTab === 'list'">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white">Laporan Timbangans</h2>
+                    <button @click="activeTab = 'create'"
+                        class="bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs px-4 py-2 rounded-xl transition shadow-lg shadow-amber-500/10 flex items-center gap-1.5">
+                        <span>+ New Laporan Timbangan</span>
+                    </button>
+                </div>
+
+                <div class="bg-[#12141c] p-3 rounded-xl border border-gray-800 mb-6 flex gap-3 items-center">
+                    <div class="relative flex-1">
+                        <input type="text" placeholder="Search..."
+                            class="w-full bg-[#0d0e14] border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <select class="bg-[#0d0e14] border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-gray-400">
+                        <option>Sort by -</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-[#12141c] border border-gray-800 rounded-2xl p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-bold text-white text-sm">Plat Nomor: 11313113131</h3>
+                        </div>
+                        <div class="flex gap-3 items-center">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
+                                class="w-14 h-14 rounded-lg object-cover border border-gray-700">
+                            <div class="space-y-1">
+                                <span
+                                    class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-semibold px-2 py-0.5 rounded-md">Truk
+                                    Engkel</span>
+                                <div class="flex gap-3 text-xs font-bold pt-1">
+                                    <span class="text-emerald-400">1,299,200</span>
+                                    <span class="text-emerald-400">Rp 2,6 M</span>
+                                </div>
+                                <p class="text-[10px] text-gray-400">27 Sep 2026, 00:34</p>
+                                <p class="text-[10px] text-gray-500">Admin Timbangan</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-3 text-xs pt-2 border-t border-gray-800/60">
+                            <button
+                                @click="selectedData = {plat:'11313113131', beratK:'12,113 kg', beratI:'1,311,313 kg', netto:'1,299,200 kg', harga:'Rp 2,6 M'}; activeTab = 'view'"
+                                class="text-gray-300 hover:text-amber-400 flex items-center gap-1">👁 View</button>
+                            <button class="text-gray-300 hover:text-amber-400">✏️ Edit</button>
+                            <button class="text-gray-300 hover:text-red-400">🗑️ Delete</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#12141c] border border-gray-800 rounded-2xl p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-bold text-white text-sm">Plat Nomor: 23425</h3>
+                        </div>
+                        <div class="flex gap-3 items-center">
+                            <div
+                                class="w-14 h-14 rounded-lg bg-red-900/40 border border-red-700/50 flex items-center justify-center text-red-400 text-xs text-center font-bold">
+                                FOTO</div>
+                            <div class="space-y-1">
+                                <span
+                                    class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-semibold px-2 py-0.5 rounded-md">Truk
+                                    Engkel</span>
+                                <div class="flex gap-3 text-xs font-bold pt-1">
+                                    <span class="text-emerald-400">122,000</span>
+                                    <span class="text-emerald-400">Rp 0</span>
+                                </div>
+                                <p class="text-[10px] text-gray-400">22 Sep 2026, 03:10</p>
+                                <p class="text-[10px] text-gray-500">Admin Timbangan</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-3 text-xs pt-2 border-t border-gray-800/60">
+                            <button
+                                @click="selectedData = {plat:'23425', beratK:'10,000 kg', beratI:'132,000 kg', netto:'122,000 kg', harga:'Rp 0'}; activeTab = 'view'"
+                                class="text-gray-300 hover:text-amber-400 flex items-center gap-1">👁 View</button>
+                            <button class="text-gray-300 hover:text-amber-400">✏️ Edit</button>
+                            <button class="text-gray-300 hover:text-red-400">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENT 2: FORM CREATE LAPORAN -->
+            <div x-show="activeTab === 'create'">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-extrabold text-white">Create Laporan Timbangan</h2>
+                    <button @click="activeTab = 'list'"
+                        class="bg-gray-800 text-gray-300 hover:text-white px-3 py-1.5 rounded-lg text-xs">✕
+                        Cancel</button>
+                </div>
+
+                <div class="bg-[#12141c] border border-gray-800 rounded-2xl p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-2">Kategori Mobil <span
+                                    class="text-amber-500">*</span></label>
+                            <select x-model="formData.kategori"
+                                class="w-full bg-[#0d0e14] border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-amber-500 outline-none">
+                                <option value="Truk Engkel">Truk Engkel</option>
+                                <option value="Truk Tronton">Truk Tronton</option>
+                                <option value="Pick Up">Pick Up</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-2">Plat Nomor <span
+                                    class="text-amber-500">*</span></label>
+                            <input type="text" x-model="formData.plat" placeholder="misal: BM 1234 XX"
+                                class="w-full bg-[#0d0e14] border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-amber-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-2">Berat Timbangan Kosong (kg)
+                                <span class="text-amber-500">*</span></label>
+                            <input type="number" x-model="formData.beratKosong" placeholder="0"
+                                class="w-full bg-[#0d0e14] border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-amber-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-2">Berat Timbangan Isi (kg) <span
+                                    class="text-amber-500">*</span></label>
+                            <input type="number" x-model="formData.beratIsi" placeholder="0"
+                                class="w-full bg-[#0d0e14] border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-amber-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1">Muatan Sawit / Netto
+                                (kg)</label>
+                            <div class="bg-[#0d0e14] border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-emerald-400"
+                                x-text="muatanSawit.toLocaleString('id-ID') + ' kg'">0 kg</div>
+                            <p class="text-[10px] text-gray-500 mt-1">Otomatis terhitung: berat isi - berat kosong</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-2">Harga Sawit per Kg (Rp) <span
+                                    class="text-amber-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-2.5 text-xs text-gray-500">Rp</span>
+                                <input type="number" x-model="formData.hargaPerKg" placeholder="0"
+                                    class="w-full bg-[#0d0e14] border border-gray-800 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white focus:border-amber-500 outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1">Total Harga (Rp)</label>
+                            <div class="bg-[#0d0e14] border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-amber-500"
+                                x-text="'Rp ' + totalHarga.toLocaleString('id-ID')">Rp 0</div>
+                            <p class="text-[10px] text-gray-500 mt-1">Otomatis terhitung: muatan sawit × harga per kg
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-2">Foto Mobil <span
+                                    class="text-amber-500">*</span></label>
+                            <div
+                                class="border-2 border-dashed border-gray-800 rounded-xl p-4 text-center bg-[#0d0e14] hover:border-amber-500/50 cursor-pointer transition">
+                                <p class="text-xs text-gray-400">Drag & Drop your files or <span
+                                        class="text-amber-500 font-semibold">Browse</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-800/60">
+                        <button @click="activeTab = 'list'"
+                            class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold px-4 py-2 rounded-xl text-xs transition">Batal</button>
+                        <button @click="activeTab = 'list'"
+                            class="bg-amber-500 hover:bg-amber-400 text-black font-bold px-5 py-2 rounded-xl text-xs transition shadow-lg shadow-amber-500/10">Create
+                            & Create Another</button>
+                        <button @click="activeTab = 'list'"
+                            class="bg-amber-500 hover:bg-amber-400 text-black font-bold px-5 py-2 rounded-xl text-xs transition shadow-lg shadow-amber-500/10">Create</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- CONTENT 3: VIEW DETAIL LAPORAN DESKTOP -->
+            <div x-show="activeTab === 'view'">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white">View Laporan Timbangan</h2>
+                    <div class="flex gap-2">
+                        <button class="bg-amber-500 text-black text-xs font-bold px-3 py-1.5 rounded-lg">Edit</button>
+                        <button @click="activeTab = 'create'"
+                            class="bg-amber-600 text-black text-xs font-bold px-3 py-1.5 rounded-lg">+ Tambah
+                            Data</button>
+                        <button @click="activeTab = 'list'"
+                            class="bg-gray-800 text-gray-300 text-xs font-medium px-3 py-1.5 rounded-lg">✕
+                            Kembali</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <div class="md:col-span-6">
+                        <div class="bg-[#12141c] border border-gray-800 rounded-2xl overflow-hidden p-2">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"
+                                class="w-full h-64 object-cover rounded-xl">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-6 space-y-4">
+                        <div class="bg-[#12141c] border border-gray-800 rounded-2xl p-4">
+                            <h4
+                                class="text-xs font-bold text-gray-300 mb-4 pb-2 border-b border-gray-800 flex items-center gap-2">
+                                🚚 Informasi Kendaraan</h4>
+                            <div class="grid grid-cols-2 gap-4 text-xs">
+                                <div>
+                                    <p class="text-gray-400">Plat Nomor</p>
+                                    <p class="font-extrabold text-white text-base mt-0.5"
+                                        x-text="selectedData ? selectedData.plat : '11313113131'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400">Kategori Mobil</p>
+                                    <span
+                                        class="inline-block bg-gray-800 text-gray-300 border border-gray-700 text-[10px] px-2 py-0.5 rounded mt-1">Truk
+                                        Engkel</span>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400">Tanggal & Waktu Timbang</p>
+                                    <p class="text-gray-200 mt-0.5">🕒 27 Sep 2026, 00:34</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400">Dicatat Oleh</p>
+                                    <p class="text-gray-200 mt-0.5">👤 Admin Timbangan</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#12141c] border border-gray-800 rounded-2xl p-4">
+                            <h4
+                                class="text-xs font-bold text-gray-300 mb-4 pb-2 border-b border-gray-800 flex items-center gap-2">
+                                ⚖️ Hasil Timbangan</h4>
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <div>
+                                    <p class="text-gray-400">Berat Kosong</p>
+                                    <p class="font-bold text-white mt-1"
+                                        x-text="selectedData ? selectedData.beratK : '12,113 kg'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400">Berat Isi</p>
+                                    <p class="font-bold text-white mt-1"
+                                        x-text="selectedData ? selectedData.beratI : '1,311,313 kg'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400">Muatan Sawit</p>
+                                    <p class="font-bold text-emerald-400 mt-1"
+                                        x-text="selectedData ? selectedData.netto : '1,299,200 kg'"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('mobileChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1', '4', '7', '10', '13', '16', '19', '22', '25', '28'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 2600],
+                        backgroundColor: '#f59e0b',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#6b7280',
+                                font: {
+                                    size: 9
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#1f2937'
+                            },
+                            ticks: {
+                                color: '#6b7280',
+                                font: {
+                                    size: 8
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

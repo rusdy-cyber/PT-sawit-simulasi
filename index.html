@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Sistem Operasional & Timbangan PT</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS & Alpine.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        darkbg: '#0d1117',
+                        cardbg: '#161b22',
+                        borderbg: '#30363d',
+                        brandYellow: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        /* Glow Mesh Backdrop Effect */
+        .bg-glow-top {
+            position: absolute;
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(13, 17, 23, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-glow-right {
+            position: absolute;
+            top: 20%;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(217, 119, 6, 0.1) 0%, rgba(13, 17, 23, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .glass-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body x-data="{ mode: 'desktop' }" class="min-h-screen flex flex-col justify-between relative overflow-x-hidden antialiased selection:bg-amber-500 selection:text-black p-2 sm:p-6">
+
+    <!-- Ambient Glow Backdrops -->
+    <div class="bg-glow-top"></div>
+    <div class="bg-glow-right"></div>
+
+    <!-- MODE SWITCHER TOP BAR -->
+    <div class="relative z-20 w-full max-w-5xl mx-auto bg-[#181b26] p-2 rounded-2xl border border-gray-800 flex items-center justify-between mb-4 shadow-xl">
+        <div class="flex items-center gap-2 pl-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs font-bold text-gray-300">PT-Indah-lestari Welcome Preview</span>
+        </div>
+        <div class="flex bg-[#0d0e14] p-1 rounded-xl border border-gray-800">
+            <button @click="mode = 'mobile'" :class="mode === 'mobile' ? 'bg-amber-500 text-black font-bold' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs transition-all">
+                📱 Tampilan owner
+            </button>
+            <button @click="mode = 'desktop'" :class="mode === 'desktop' ? 'bg-amber-500 text-black font-bold' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs transition-all">
+                💻 tampilan admin
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODE 1: WELCOME MOBILE OWNER VIEW          -->
+    <!-- ========================================== -->
+    <div x-show="mode === 'mobile'" class="relative z-10 mx-auto w-full max-w-[390px] bg-black rounded-[40px] border-[8px] border-gray-800 p-6 shadow-2xl min-h-[720px] flex flex-col justify-between overflow-hidden my-auto">
+        
+        <div class="mt-6 space-y-6 text-center">
+            <!-- Icon/Logo Hero -->
+            <div class="relative w-20 h-20 mx-auto flex items-center justify-center">
+                <div class="absolute inset-0 bg-amber-500/20 rounded-3xl blur-xl animate-pulse"></div>
+                <div class="w-16 h-16 bg-[#161b22] border border-amber-500/40 rounded-2xl flex items-center justify-center relative shadow-2xl">
+                    <span class="text-2xl font-black text-amber-500">PT</span>
+                </div>
+            </div>
+
+            <!-- Teks Sambutan -->
+            <div class="space-y-3">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    Sistem Timbangan Real-time v2.0
+                </span>
+                <h1 class="text-2xl font-black text-white tracking-tight leading-tight">
+                    Sistem Timbangan <br/>
+                    <span class="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-600 bg-clip-text text-transparent">Sawit Digital</span>
+                </h1>
+                <p class="text-xs text-gray-400 px-2 leading-relaxed">
+                    Platform terpadu untuk perekaman transaksi, armada truk, dan pemantauan pendapatan secara akurat.
+                </p>
+            </div>
+
+            <!-- Ringkasan Mini Mobile -->
+            <div class="grid grid-cols-2 gap-2 text-left pt-2">
+                <div class="bg-[#161b22] p-3 rounded-xl border border-[#30363d]">
+                    <p class="text-[10px] text-gray-400 font-medium">Transaksi Hari Ini</p>
+                    <p class="text-sm font-bold text-white mt-0.5">1 <span class="text-[10px] font-normal text-gray-400">Truk</span></p>
+                </div>
+                <div class="bg-[#161b22] p-3 rounded-xl border border-[#30363d]">
+                    <p class="text-[10px] text-gray-400 font-medium">Muatan Sawit</p>
+                    <p class="text-sm font-bold text-amber-400 mt-0.5">1,299.2 <span class="text-[10px] font-normal text-gray-400">Ton</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tombol Aksi Mobile -->
+        <div class="space-y-3 pt-6 pb-2">
+            <a href="login.html" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-black font-extrabold text-xs py-3.5 rounded-2xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+                <span>Masuk Portal Owner</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+            <p class="text-[10px] text-gray-600 text-center">&copy; 2026 PT Timbangan Sawit. Versi 2.0</p>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODE 2: WELCOME DESKTOP WEB VIEW           -->
+    <!-- ========================================== -->
+    <div x-show="mode === 'desktop'" class="w-full flex-1 flex flex-col justify-between">
+        
+        <!-- NAVBAR -->
+        <header class="relative z-10 w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo & Brand Name -->
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center font-black text-black text-xl shadow-lg shadow-amber-500/20">
+                    PT
+                </div>
+                <div>
+                    <h1 class="text-base font-bold leading-tight tracking-wide text-white">Sistem Timbangan</h1>
+                    <p class="text-xs text-gray-400">Digital Operational & Monitoring Portal</p>
+                </div>
+            </div>
+
+            <!-- Right Action Button -->
+            <div>
+                <a href="login.html" class="inline-flex items-center gap-2 text-sm font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-black px-6 py-2.5 rounded-full transition duration-300 shadow-lg shadow-amber-500/20 transform hover:-translate-y-0.5">
+                    <span>Masuk Portal</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                </a>
+            </div>
+        </header>
+
+        <!-- HERO SECTION -->
+        <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-12 my-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                
+                <!-- Left Column: Copywriting & CTA -->
+                <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+                    
+                    <!-- Badge Active Status -->
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs sm:text-sm font-medium">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                        Sistem Timbangan Real-time v2.0
+                    </div>
+
+                    <!-- Main Heading -->
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.15]">
+                        Kelola & Pantau <br/>
+                        <span class="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-600 bg-clip-text text-transparent">
+                            Hasil Timbangan Sawit
+                        </span>
+                        Secara Presisi
+                    </h1>
+
+                    <!-- Subtitle Description -->
+                    <p class="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                        Platform terpadu untuk perekaman transaksi timbangan, manajemen armada truk, rekapitulasi muatan, dan pemantauan pendapatan secara otomatis dan akurat.
+                    </p>
+
+                    <!-- CTA Action Buttons -->
+                    <div class="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <a href="login.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-black font-extrabold py-3.5 px-8 rounded-2xl shadow-xl shadow-amber-500/20 text-sm transition-all duration-300 transform hover:-translate-y-0.5">
+                            <span>Masuk ke Sistem</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                        </a>
+
+                        <div class="text-xs text-gray-400 flex items-center gap-2 px-3 py-2">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Akses Terenkripsi & Aman</span>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Quick Stats Grid -->
+                    <div class="pt-6 grid grid-cols-3 gap-4 border-t border-[#30363d]/60 max-w-lg mx-auto lg:mx-0">
+                        <div>
+                            <p class="text-2xl font-extrabold text-white">99.9%</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Akurasi Rekap</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-extrabold text-amber-400">Real-Time</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Pencatatan Data</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-extrabold text-white">Cloud</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Penyimpanan Aman</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Interactive Graphic Card / Feature Preview -->
+                <div class="lg:col-span-5 relative">
+                    
+                    <!-- Main Feature Showcase Card -->
+                    <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative z-10">
+                        
+                        <div class="flex justify-between items-center pb-4 border-b border-[#30363d]">
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Ringkasan Sistem</p>
+                                <h3 class="text-lg font-bold text-white mt-0.5">Status Timbangan Hari Ini</h3>
+                            </div>
+                            <span class="px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-bold rounded-full border border-amber-500/30">
+                                Aktif
+                            </span>
+                        </div>
+
+                        <!-- Highlight Metrics Cards -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-[#0d1117] p-4 rounded-2xl border border-[#30363d]">
+                                <p class="text-xs text-gray-400 font-medium">Transaksi Hari Ini</p>
+                                <p class="text-xl font-bold text-white mt-1">
+                                    1 <span class="text-xs font-normal text-gray-400">Truk</span>
+                                </p>
+                            </div>
+                            <div class="bg-[#0d1117] p-4 rounded-2xl border border-[#30363d]">
+                                <p class="text-xs text-gray-400 font-medium">Muatan Sawit Hari Ini</p>
+                                <p class="text-xl font-bold text-amber-400 mt-1">
+                                    1,299.2 <span class="text-xs font-normal text-gray-400">Ton</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Mini Feature List -->
+                        <div class="space-y-3 pt-2">
+                            <div class="flex items-center gap-3 text-xs text-gray-300">
+                                <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">✓</div>
+                                <span>Otomatisasi pencatatan berat bersih & potong tonase</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-xs text-gray-300">
+                                <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">✓</div>
+                                <span>Laporan harian & bulanan yang siap diunduh</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-xs text-gray-300">
+                                <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">✓</div>
+                                <span>Tampilan antarmuka nyaman untuk Owner & Operator</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Decorative Background Element behind card -->
+                    <div class="absolute -bottom-6 -right-6 w-full h-full bg-gradient-to-br from-amber-500/10 to-transparent rounded-3xl border border-amber-500/20 -z-0 hidden sm:block"></div>
+
+                </div>
+
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 border-t border-[#30363d]/60 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+            <p>&copy; 2026 PT Timbangan Sawit. Seluruh hak cipta dilindungi.</p>
+            <div class="flex items-center gap-6">
+                <span>Sistem Operasional Timbangan Sawit</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                <span>Versi 2.0</span>
+            </div>
+        </footer>
+
+    </div>
+
+</body>
+</html>
